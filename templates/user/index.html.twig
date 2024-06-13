@@ -1,56 +1,26 @@
 {# templates/user/index.html.twig #}
+{% extends 'base.html.twig' %}
 
-<h1>User List</h1>
-<div class="create-button">
-    <a href="{{ path('user_register') }}" class="btn">Create New User</a>
-</div>
-<table border="1">
-    <thead>
-    <tr>
-        <th>ID</th>
-        <th>Email</th>
-    </tr>
-    </thead>
-    <tbody>
-    {% for user in users %}
+{% block title %}List of Users{% endblock %}
+
+{% block body %}
+    <h1>List of Users</h1>
+    <table class="table">
+        <thead>
         <tr>
-            <td>{{ user.id }}</td>
-            <td>{{ user.email }}</td>
+            <th scope="col">ID</th>
+            <th scope="col">Email</th>
+            <th scope="col">Roles</th>
         </tr>
-    {% endfor %}
-    </tbody>
-</table>
-<style>
-    body {
-        font-family: 'Arial', sans-serif;
-        margin: 0;
-        padding: 0;
-        background-color: #f8f9fa;
-        color: #343a40;
-    }
-    h1 {
-        text-align: center;
-        margin: 20px 0;
-        color: #007bff;
-    }
-    table {
-        width: 80%;
-        margin: 20px auto;
-        border-collapse: collapse;
-        background-color: #ffffff;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
-    th, td {
-        padding: 12px;
-        text-align: left;
-        border: 1px solid #dee2e6;
-    }
-    thead {
-        background-color: #007bff;
-        color: #ffffff;
-    }
-    tbody tr:nth-child(even) {
-        background-color: #f2f2f2;
-    }
-</style>
-
+        </thead>
+        <tbody>
+        {% for user in users %}
+            <tr>
+                <td>{{ user.id }}</td>
+                <td>{{ user.email }}</td>
+                <td>{{ user.roles ? user.roles|join(', ') : 'No roles' }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
