@@ -38,7 +38,7 @@
             </li>
             {% if is_granted('IS_AUTHENTICATED_FULLY') %}
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ path('profile') }}">Profile</a>
+                    <a class="nav-link" href="{{ path('app_profile') }}">Profile</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="{{ path('app_logout') }}">Logout</a>
@@ -49,7 +49,7 @@
                     <a class="nav-link" href="{{ path('app_login') }}">Login</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ path('user_register') }}">Register</a>
+                    <a class="nav-link" href="{{ path('app_register') }}">Register</a>
                 </li>
             {% endif %}
         </ul>

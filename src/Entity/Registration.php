@@ -14,10 +14,6 @@ class Registration
     #[ORM\Column(type: 'integer')]
     private $id;
 
-    #[ORM\ManyToOne(targetEntity: User::class)]
-    #[ORM\JoinColumn(nullable: false)]
-    private $user;
-
     #[ORM\ManyToOne(targetEntity: Event::class, inversedBy: 'registrations')]
     #[ORM\JoinColumn(nullable: false)]
     private $event;
@@ -25,17 +21,21 @@ class Registration
     #[ORM\Column(type: 'datetime')]
     private $createdAt;
 
+    #[ORM\ManyToOne(inversedBy: 'registrations')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?User $user = null;
+
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getUser(): ?User
+    public function getUser(): ?UserBLA
     {
         return $this->user;
     }
 
-    public function setUser(?User $user): self
+    public function setUser(?UserBLA $user): self
     {
         $this->user = $user;
 

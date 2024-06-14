@@ -2,7 +2,7 @@
 
 namespace App\DataFixtures;
 
-use App\Entity\User;
+use App\Entity\UserBLA;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -19,7 +19,7 @@ class UserFixture extends Fixture
     public function load(ObjectManager $manager): void
     {
         // Create an admin user
-        $adminUser = new User();
+        $adminUser = new UserBLA();
         $adminUser->setFirstName('Admin');
         $adminUser->setLastName('User');
         $adminUser->setEmail('admin@example.com');
@@ -33,7 +33,7 @@ class UserFixture extends Fixture
         $manager->persist($adminUser);
 
         // Create a regular user
-        $regularUser = new User();
+        $regularUser = new UserBLA();
         $regularUser->setFirstName('Regular');
         $regularUser->setLastName('User');
         $regularUser->setEmail('user@example.com');

@@ -1,7 +1,7 @@
 <?php
 namespace App\Controller;
 
-use App\Entity\User;
+use App\Entity\UserBLA;
 use App\Form\RegistrationFormType;
 use App\Form\UserType;
 use App\Repository\UserRepository;
@@ -15,36 +15,7 @@ use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
 class UserController extends AbstractController
 {
-    #[Route('/register', name: 'user_register')]
-    public function register(Request $request, UserPasswordHasherInterface $passwordHasher, EntityManagerInterface $entityManager): Response
-    {
-        $user = new User();
-        $form = $this->createForm(UserType::class, $user);
-        $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            // encode the plain password
-            $user->setPassword(
-                $passwordHasher->hashPassword(
-                    $user,
-                    $user->getPlainPassword() // Use getPlainPassword() to retrieve the plain password
-                )
-            );
-            $user->setRoles(['ROLE_USER']);
-
-            // Persist the user entity
-            $entityManager->persist($user);
-            $entityManager->flush();
-
-            // Redirect after successful registration
-            return $this->redirectToRoute('app_login');
-        }
-
-        // Render the registration form if not submitted or invalid
-        return $this->render('user/register.html.twig', [
-            'userForm' => $form->createView(),
-        ]);
-    }
 
     #[Route('/login', name: 'app_login')]
     public function login(AuthenticationUtils $authenticationUtils): Response
