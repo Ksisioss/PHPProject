@@ -1,7 +1,7 @@
 <?php
 namespace App\Controller;
 
-use App\Entity\UserBLA;
+use App\Form\ProfileFormType;
 use App\Form\RegistrationFormType;
 use App\Form\UserType;
 use App\Repository\UserRepository;
@@ -15,47 +15,14 @@ use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
 class UserController extends AbstractController
 {
-
-
-    #[Route('/login', name: 'app_login')]
-    public function login(AuthenticationUtils $authenticationUtils): Response
-    {
-        // if a user is already logged in, redirect them to some other route
-        if ($this->getUser()) {
-            return $this->redirectToRoute('target_path');
-        }
-
-        // get the login error if there is one
-        $error = $authenticationUtils->getLastAuthenticationError();
-        // last username entered by the user
-        $lastUsername = $authenticationUtils->getLastUsername();
-
-        return $this->render('user/login.html.twig', ['last_username' => $lastUsername, 'error' => $error]);
-    }
-
-    #[Route('/logout', name: 'app_logout')]
-    public function logout(): void
-    {
-        throw new \Exception('This method can be blank - it will be intercepted by the logout key on your firewall');
-    }
-
     #[Route('/profile', name: 'app_profile')]
     public function profile(Request $request, UserPasswordHasherInterface $passwordHasher, EntityManagerInterface $entityManager): Response
     {
         $user = $this->getUser();
-        $form = $this->createForm(RegistrationFormType::class, $user);
+        $form = $this->createForm(ProfileFormType::class, $user);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $plainPassword = $form->get('plainPassword')->getData();
-            if ($plainPassword) {
-                $user->setPassword(
-                    $passwordHasher->hashPassword(
-                        $user,
-                        $plainPassword
-                    )
-                );
-            }
 
             $entityManager->persist($user);
             $entityManager->flush();
