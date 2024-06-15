@@ -1,0 +1,37 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Ajouter un évènement{% endblock %}
+
+{% block body %}
+    <section class="min-h-screen flex items-center justify-center">
+        <div class="max-w-md w-full bg-white rounded-lg" style="width: 400px; margin: auto; margin-top: 50px; margin-bottom: 50px;">
+            <div class="p-6 space-y-6">
+                <h1 class="h1 mb-3 text-center">ADD A GRAND PRIX</h1>
+
+                {{ form_errors(form) }}
+
+                {{ form_start(form) }}
+                <div class="form-group text-center" style="font-weight: bold">
+                    {{ form_row(form.title, {'label_attr': {'style': 'text-transform: uppercase;'}, 'attr': {'class': 'form-control text-center'}}) }}
+                </div>
+                <div class="form-group text-center" style="font-weight: bold">
+                    {{ form_row(form.description, {'label_attr': {'style': 'text-transform: uppercase;'}, 'attr': {'class': 'form-control text-center'}}) }}
+                </div>
+                <div class="form-group text-center" style="font-weight: bold">
+                    {{ form_row(form.date, {'label_attr': {'style': 'text-transform: uppercase;'}, 'attr': {'class': 'form-control text-center'}}) }}
+                </div>
+                <div class="form-group text-center" style="font-weight: bold">
+                    {{ form_row(form.location, {'label_attr': {'style': 'text-transform: uppercase;'}, 'attr': {'class': 'form-control text-center'}}) }}
+                </div>
+                <div class="form-group text-center" style="font-weight: bold">
+                    {{ form_row(form.country, {'label_attr': {'style': 'text-transform: uppercase;'}, 'attr': {'class': 'form-control text-center'}}) }}
+                </div>
+
+                <div class="text-center">
+                    <button type="submit" class="primary-btn w-full py-2.5" style="border: none;">AJOUTER</button>
+                </div>
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </section>
+{% endblock %}

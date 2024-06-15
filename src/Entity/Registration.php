@@ -14,16 +14,16 @@ class Registration
     #[ORM\Column(type: 'integer')]
     private $id;
 
-    #[ORM\ManyToOne(targetEntity: User::class)]
-    #[ORM\JoinColumn(nullable: false)]
-    private $user;
-
     #[ORM\ManyToOne(targetEntity: Event::class, inversedBy: 'registrations')]
     #[ORM\JoinColumn(nullable: false)]
     private $event;
 
     #[ORM\Column(type: 'datetime')]
     private $createdAt;
+
+    #[ORM\ManyToOne(inversedBy: 'registrations')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?User $user = null;
 
     public function getId(): ?int
     {

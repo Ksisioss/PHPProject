@@ -9,11 +9,18 @@
         <div class="nav-menu">
             <nav class="mainmenu mobile-menu">
                 <ul>
-                    <li class="active"><a href="{{ path('home') }}">Home</a></li>
-                    <li><a href="{{ path('event_list') }}">GRAND PRIX</a></li>
+                    <li class="{% if app.request.attributes.get('_route') == 'home' %}active{% endif %}"><a href="{{ path('home') }}">Home</a></li>
+                    <li class="{% if app.request.attributes.get('_route') == 'event_list' %}active{% endif %}"><a href="{{ path('event_list') }}">GRAND PRIX</a></li>
+                    {% if is_granted('IS_AUTHENTICATED_FULLY') %}
+                        <li class="{% if app.request.attributes.get('_route') == 'app_profile' %}active{% endif %}"><a href="{{ path('app_profile') }}">Profile</a></li>
+                        <a href="{{ path('app_logout') }}" class="primary-btn top-btn"><i class="fa fa-sign-out"></i> LOGOUT</a>
+                    {% endif %}
                 </ul>
             </nav>
-            <a href="#" class="primary-btn top-btn"><i class="fa fa-ticket"></i> LOGIN</a>
+            {% if not is_granted('IS_AUTHENTICATED_FULLY') %}
+                <a href="{{ path('app_login') }}" class="primary-btn top-btn"><i class="fa fa-ticket"></i> LOGIN</a>
+                <a href="{{ path('app_register') }}" class="primary-btn top-btn"><i class="fa fa-user"></i> REGISTER</a>
+            {% endif %}
         </div>
         <div id="mobile-menu-wrap"></div>
     </div>

@@ -1,0 +1,53 @@
+{# templates/event/myevents.html.twig #}
+
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <div class="example-wrapper">
+        <a href="{{ path('event_new') }}">
+            <button class="btn btn-lg btn-primary" type="button">Ajouter un évènement</button>
+        </a>
+
+        <h2>Liste des événements</h2>
+
+        {% if events is empty %}
+            <p>Aucun événement trouvé.</p>
+        {% else %}
+            <table>
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Title</th>
+                    <th>Description</th>
+                    <th>Date</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for event in events %}
+                    <tr>
+                        <td>{{ event.id }}</td>
+                        <td>{{ event.title }}</td>
+                        <td>{{ event.description }}</td>
+                        <td>{{ event.date|date('Y-m-d H:i') }}</td>
+                        <td>
+                            {% if is_granted('ROLE_USER') %}
+                                {% set eventId = event.id %}
+                                {% if eventRegistrations[eventId] is defined %}
+                                    <a href="{{ path('event_unregister', {'id': event.id}) }}">
+                                        <button class="btn btn-sm btn-secondary" type="button">Se désinscrire</button>
+                                    </a>
+                                {% else %}
+                                    <a href="{{ path('event_register', {'id': event.id}) }}">
+                                        <button class="btn btn-sm btn-secondary" type="button">S'inscrire</button>
+                                    </a>
+                                {% endif %}
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+    </div>
+{% endblock %}

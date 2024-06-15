@@ -17,7 +17,8 @@ class EventType extends AbstractType
             ->add('date', null, [
                 'widget' => 'single_text'
             ])
-        ;
+            ->add('location')
+            ->add('country');
     }
 
     public function configureOptions(OptionsResolver $resolver): void

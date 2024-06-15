@@ -1,0 +1,58 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <section class="min-h-screen flex items-center justify-center">
+        <div class="max-w-md w-full bg-white rounded-lg" style="width: 400px; margin: auto; margin-top: 50px; margin-bottom: 50px;">
+            <div class="p-6 space-y-6">
+                <h1 class="h1 mb-3 text-center">REGISTER</h1>
+
+                {% for error in registrationForm.vars.errors %}
+                    <div class="alert alert-danger">{{ error.message }}</div>
+                {% endfor %}
+
+                {{ form_start(registrationForm) }}
+
+                <div class="form-group text-center" style="font-weight: bold; text-transform: uppercase;">
+                    {{ form_row(registrationForm.firstName, {'attr': {'class': 'form-control text-center'}}) }}
+                </div>
+
+                <div class="form-group text-center" style="font-weight: bold; text-transform: uppercase;">
+                    {{ form_row(registrationForm.lastName, {'attr': {'class': 'form-control text-center'}}) }}
+                </div>
+
+                <div class="form-group text-center" style="font-weight: bold; text-transform: uppercase;">
+                    {{ form_row(registrationForm.email, {'attr': {'class': 'form-control text-center'}}) }}
+                </div>
+
+                <div class="form-group text-center" style="font-weight: bold; text-transform: uppercase;">
+                    {{ form_row(registrationForm.plainPassword.first, {'label': 'Password', 'attr': {'class': 'form-control text-center'}}) }}
+                </div>
+
+                <div class="form-group text-center" style="font-weight: bold; text-transform: uppercase;">
+                    {{ form_row(registrationForm.plainPassword.second, {'label': 'Confirm Password', 'attr': {'class': 'form-control text-center'}}) }}
+                </div>
+
+                <div class="text-center">
+                    <button type="submit" class="primary-btn w-full py-2.5" style="border: none;">REGISTER</button>
+                </div>
+
+                {{ form_end(registrationForm) }}
+            </div>
+        </div>
+    </section>
+
+    <style>
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid transparent;
+            border-radius: 4px;
+        }
+
+        .alert-danger {
+            color: #a94442;
+            background-color: #f2dede;
+            border-color: #ebccd1;
+        }
+    </style>
+{% endblock %}
