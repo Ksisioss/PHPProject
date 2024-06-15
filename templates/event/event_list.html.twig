@@ -65,7 +65,7 @@
                                                     <li><i class="fa fa-clock-o"></i> {{ event.date|date('F j, Y, g:i a') }}</li>
                                                     <li><i class="fa fa-map-marker"></i> {{ event.location }}, {{ event.country }}</li>
                                                     {% if is_granted('ROLE_USER') and isFull[event.id] > 0 %}
-                                                        <li><i class="fa fa-ticket"></i> {{ isFull[event.id] }} places restantes </li>
+                                                        <li><i class="fa fa-ticket"></i> {{ isFull[event.id] }} places restantes</li>
                                                     {% endif %}
                                                 </ul>
                                                 {% if is_granted('ROLE_USER') %}
@@ -152,11 +152,11 @@
             background-color: #007bff;
             border: none;
             color: #fff;
-            padding: 12px 24px;
+            padding: 10px 20px;
             text-align: center;
             text-decoration: none;
             display: inline-block;
-            font-size: 16px;
+            font-size: 14px;
             margin: 4px 2px;
             cursor: pointer;
             border-radius: 4px;
@@ -192,7 +192,7 @@
             display: flex;
             flex-wrap: wrap;
             gap: 12px;
-            margin-bottom: 30px;
+            margin-bottom: 80px;
         }
     </style>
 
@@ -202,8 +202,12 @@
             const alerts = document.querySelectorAll('.alert');
             alerts.forEach(alert => {
                 setTimeout(function() {
-                    $(alert).alert('close');
+                    alert.classList.remove('show');
+                    alert.classList.add('fade');
                 }, 5000);
+                setTimeout(function() {
+                    alert.remove();
+                }, 5500);  // allow the fade out transition to complete
             });
 
             const nameFilter = document.getElementById('name-filter');
