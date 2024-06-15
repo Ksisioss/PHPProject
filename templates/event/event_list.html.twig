@@ -4,10 +4,13 @@
     <section class="event-list-section aspad">
         <div class="container">
             {% for label, messages in app.flashes %}
-                <div class="alert alert-{{ label }}">
+                <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
                     {% for message in messages %}
                         <p>{{ message }}</p>
                     {% endfor %}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
                 </div>
             {% endfor %}
             <div class="row">
@@ -61,20 +64,23 @@
                                                 <ul class="sc-widget">
                                                     <li><i class="fa fa-clock-o"></i> {{ event.date|date('F j, Y, g:i a') }}</li>
                                                     <li><i class="fa fa-map-marker"></i> {{ event.location }}, {{ event.country }}</li>
+                                                    {% if is_granted('ROLE_USER') and isFull[event.id] > 0 %}
+                                                        <li><i class="fa fa-ticket"></i> {{ isFull[event.id] }} places restantes </li>
+                                                    {% endif %}
                                                 </ul>
                                                 {% if is_granted('ROLE_USER') %}
                                                     <div class="btn-group">
                                                         {% set eventId = event.id %}
                                                         {% if eventRegistrations[eventId] is defined %}
-                                                            <a href="{{ path('event_unregister', {'id': event.id}) }}" class="primary-btn btn-sm" type="button">UNREGISTER</a>
+                                                            <a href="{{ path('event_unregister', {'id': event.id}) }}" class="primary-btn btn-lg btn-danger" type="button">UNREGISTER</a>
                                                         {% elseif isFull[event.id] > 0 %}
-                                                            <a href="{{ path('event_register', {'id': event.id}) }}" class="primary-btn btn-sm btn-success" type="button">REGISTER</a>
+                                                            <a href="{{ path('event_register', {'id': event.id}) }}" class="primary-btn btn-lg btn-success" type="button">REGISTER</a>
                                                         {% endif %}
                                                         {% if is_granted('EVENT_DELETE', event) %}
-                                                            <a href="{{ path('event_delete', {'id': event.id}) }}" onclick="return confirm('Are you sure you want to delete this event?');" class="primary-btn btn-sm btn-danger" type="button">DELETE</a>
+                                                            <a href="{{ path('event_delete', {'id': event.id}) }}" onclick="return confirm('Are you sure you want to delete this event?');" class="primary-btn btn-lg btn-danger" type="button">DELETE</a>
                                                         {% endif %}
                                                         {% if is_granted('EVENT_EDIT', event) %}
-                                                            <a href="{{ path('event_edit', {'id': event.id}) }}" class="primary-btn btn-sm btn-primary" type="button">EDIT</a>
+                                                            <a href="{{ path('event_edit', {'id': event.id}) }}" class="primary-btn btn-lg btn-primary" type="button">EDIT</a>
                                                         {% endif %}
                                                     </div>
                                                 {% endif %}
@@ -94,25 +100,6 @@
     </section>
 
     <style>
-        .alert {
-            padding: 15px;
-            margin-bottom: 20px;
-            border: 1px solid transparent;
-            border-radius: 4px;
-        }
-
-        .alert-success {
-            color: #155724;
-            background-color: #d4edda;
-            border-color: #c3e6cb;
-        }
-
-        .alert-danger {
-            color: #721c24;
-            background-color: #f8d7da;
-            border-color: #f5c6cb;
-        }
-
         .pagination-container {
             display: flex;
             justify-content: center;
@@ -165,19 +152,24 @@
             background-color: #007bff;
             border: none;
             color: #fff;
-            padding: 10px 20px;
+            padding: 12px 24px;
             text-align: center;
             text-decoration: none;
             display: inline-block;
-            font-size: 14px;
+            font-size: 16px;
             margin: 4px 2px;
             cursor: pointer;
             border-radius: 4px;
         }
 
         .primary-btn.btn-sm {
-            padding: 5px 10px;
-            font-size: 12px;
+            padding: 8px 16px;
+            font-size: 14px;
+        }
+
+        .primary-btn.btn-lg {
+            padding: 12px 24px;
+            font-size: 16px;
         }
 
         .primary-btn.btn-danger {
@@ -188,24 +180,32 @@
             background-image: linear-gradient(to right, #6c757d, #5a6268);
         }
 
-        .btn-success {
+        .primary-btn.btn-success {
             background-image: linear-gradient(to right, #28a745, #218838);
         }
 
-        .btn-primary {
+        .primary-btn.btn-primary {
             background-image: linear-gradient(to right, #007bff, #0069d9);
         }
 
         .btn-group {
             display: flex;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 12px;
             margin-bottom: 30px;
         }
     </style>
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+            // Remove alerts after 5 seconds
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                setTimeout(function() {
+                    $(alert).alert('close');
+                }, 5000);
+            });
+
             const nameFilter = document.getElementById('name-filter');
             const dateFilter = document.getElementById('date-filter');
             const eventCards = document.querySelectorAll('.event-card');
