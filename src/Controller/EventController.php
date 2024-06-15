@@ -118,7 +118,6 @@ class EventController extends AbstractController
     #[IsGranted('ROLE_USER')]
     public function register(Event $event, EntityManagerInterface $entityManager): Response
     {
-
         $user = $this->getUser();
         $registration = new Registration();
         $registration->setEvent($event);
@@ -128,8 +127,10 @@ class EventController extends AbstractController
         $entityManager->persist($registration);
         $entityManager->flush();
 
+        $this->addFlash('success', 'You have successfully registered for the event.');
+
         $subject = 'Confirmation d\'enregistrement';
-        $body = sprintf('Bonjour %s, votre inscription à l\'événement %s a été confirmé.', $user->getFirstName(), $event->getTitle());
+        $body = sprintf('Hello %s, you have successfully registered for the event %s.', $user->getFirstName(), $event->getTitle());
         $this->emailService->sendEmail($user->getEmail(), $subject, $body);
 
         return $this->redirectToRoute('event_list');
@@ -140,21 +141,21 @@ class EventController extends AbstractController
     public function unregister(Event $event, EntityManagerInterface $entityManager): Response
     {
         $user = $this->getUser();
-
-        // Find the existing registration to unregister
         $registration = $entityManager->getRepository(Registration::class)->findOneBy([
             'event' => $event,
             'user' => $user,
         ]);
 
         if ($registration) {
-            // Remove the registration
             $entityManager->remove($registration);
             $entityManager->flush();
+            $this->addFlash('success', 'You have successfully unregistered from the event.');
+        } else {
+            $this->addFlash('danger', 'Unregistration failed. You were not registered for this event.');
         }
 
         $subject = 'Confirmation d\'annulation';
-        $body = sprintf('Bonjour %s, votre inscription à l\'événement %s a été annulée.', $user->getFirstName(), $event->getTitle());
+        $body = sprintf('Hello %s, you have successfully unregistered from the event %s.', $user->getFirstName(), $event->getTitle());
         $this->emailService->sendEmail($user->getEmail(), $subject, $body);
 
         return $this->redirectToRoute('event_list');
@@ -169,6 +170,7 @@ class EventController extends AbstractController
 
         $entityManager->remove($event);
         $entityManager->flush();
+        $this->addFlash('success', 'Event deleted successfully.');
 
         return $this->redirectToRoute('event_list');
     }
@@ -183,6 +185,7 @@ class EventController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
+            $this->addFlash('success', 'Event updated successfully.');
 
             return $this->redirectToRoute('event_list');
         }
@@ -192,5 +195,6 @@ class EventController extends AbstractController
             'event' => $event,
         ]);
     }
+
 }
 
