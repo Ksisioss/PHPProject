@@ -1,0 +1,231 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <section style="height: 100%;" class="hero-section set-bg" data-setbg="img/f1_home.png">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-7">
+                    <div class="hero-text">
+                        <!-- Optional Hero Text -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Counter Section Begin -->
+    <section class="counter-section bg-gradient">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4">
+                    <div class="counter-text">
+                        <span>It's lights out and away we go!</span>
+                        <h3>UPCOMING GRAND PRIX</h3>
+                    </div>
+                </div>
+                <div class="col-lg-8">
+                    <div class="cd-timer" id="countdown">
+                        <div class="cd-item">
+                            <span id="days">0</span>
+                            <p>Days</p>
+                        </div>
+                        <div class="cd-item">
+                            <span id="hours">0</span>
+                            <p>Hours</p>
+                        </div>
+                        <div class="cd-item">
+                            <span id="minutes">0</span>
+                            <p>Minutes</p>
+                        </div>
+                        <div class="cd-item">
+                            <span id="seconds">0</span>
+                            <p>Seconds</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Counter Section End -->
+
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="schedule-tab">
+                <ul class="nav nav-tabs" role="tablist" id="event-tabs">
+                    <li class="nav-item">
+                        <a class="nav-link active" data-toggle="tab" href="#tabs-all" role="tab">
+                            <h6 style="font-weight: bold">All Grand Prix</h6>
+                            <p>Discover all the Grand Prix!</p>
+                        </a>
+                    </li>
+                    {% for country, eventsInCountry in groupedEvents %}
+                        <li class="nav-item">
+                            <a class="nav-link" data-toggle="tab" href="#tabs-{{ loop.index }}" role="tab" onclick="handleTabClick(event, '{{ loop.index }}')">
+                                <h6 style="font-weight: bold">{{ eventsInCountry[0].country }}</h6>
+                                <p>{{ eventsInCountry[0].date|date('F d, Y') }}</p>
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+                <!-- Tab panes -->
+                <div class="tab-content">
+                    <div class="tab-pane active" id="tabs-all" role="tabpanel">
+                        {% for event in allEvents %}
+                            <div class="st-content">
+                                <div class="container">
+                                    <div class="row">
+                                        <div class="col-lg-3">
+                                            <div class="sc-pic">
+                                                <img src="{{ asset('img/schedule/schedule-1.jpg') }}" alt="">
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-5">
+                                            <div class="sc-text">
+                                                <h4>{{ event.title }}</h4>
+                                                <h6>{{ event.description }}</h6>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-4">
+                                            <ul class="sc-widget">
+                                                <li><i class="fa fa-clock-o"></i> {{ event.date|date('H:i') }} AM</li>
+                                                <li><i class="fa fa-map-marker"></i> {{ event.location }}, {{ event.country }}</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    {% for country, eventsInCountry in groupedEvents %}
+                        <div class="tab-pane" id="tabs-{{ loop.index }}" role="tabpanel">
+                            {% for event in eventsInCountry %}
+                                <div class="st-content">
+                                    <div class="container">
+                                        <div class="row">
+                                            <div class="col-lg-3">
+                                                <div class="sc-pic">
+                                                    <img src="{{ asset('img/schedule/schedule-1.jpg') }}" alt="">
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-5">
+                                                <div class="sc-text">
+                                                    <h4>{{ event.title }}</h4>
+                                                    <h6>{{ event.description }}</h6>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-4">
+                                                <ul class="sc-widget">
+                                                    <li><i class="fa fa-clock-o"></i> {{ event.date|date('H:i') }} AM</li>
+                                                    <li><i class="fa fa-map-marker"></i> {{ event.location }}, {{ event.country }}</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var eventDateStr = "{{ firstUpcomingEvent.date|date('Y-m-d H:i:s') }}";
+            var eventDate = new Date(eventDateStr).getTime();
+            var countdownFunction = setInterval(function () {
+                var now = new Date().getTime();
+                var distance = eventDate - now;
+                if (distance < 0) {
+                    clearInterval(countdownFunction);
+                    document.getElementById("countdown").innerHTML = "Event Started";
+                    return;
+                }
+                var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                document.getElementById("days").innerHTML = days;
+                document.getElementById("hours").innerHTML = hours;
+                document.getElementById("minutes").innerHTML = minutes;
+                document.getElementById("seconds").innerHTML = seconds;
+            }, 1000);
+
+            // Auto-scroll functionality
+            const tabs = document.getElementById('event-tabs');
+            let scrollAmount = 0;
+            function autoScroll() {
+                scrollAmount += 1;
+                if (scrollAmount >= tabs.scrollWidth - tabs.clientWidth) {
+                    scrollAmount = 0;
+                }
+                tabs.scrollTo({
+                    left: scrollAmount,
+                    behavior: 'smooth'
+                });
+            }
+
+            let scrollInterval = setInterval(autoScroll, 50);
+            tabs.addEventListener('mouseover', () => clearInterval(scrollInterval));
+            tabs.addEventListener('mouseout', () => {
+                scrollInterval = setInterval(autoScroll, 50);
+            });
+
+            // Initial display of all events
+            displayAllEvents();
+        });
+
+        function handleTabClick(event, tabId) {
+            event.preventDefault();
+            const allTabs = document.querySelectorAll('.nav-tabs .nav-link');
+            const allTabPanes = document.querySelectorAll('.tab-pane');
+
+            const clickedTab = event.target.closest('.nav-link');
+
+            // Remove active class from all tabs and hide all tab panes
+            allTabs.forEach(tab => tab.classList.remove('active'));
+            allTabPanes.forEach(pane => pane.classList.remove('active'));
+
+            // Activate the clicked tab and corresponding pane
+            clickedTab.classList.add('active');
+            document.getElementById('tabs-' + tabId).classList.add('active');
+        }
+
+        function displayAllEvents() {
+            document.querySelector('#tabs-all').classList.add('active');
+        }
+    </script>
+
+    <style>
+        .nav-tabs {
+            display: flex;
+            overflow-x: auto;
+            white-space: nowrap;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none; /* Firefox */
+        }
+
+        .nav-tabs::-webkit-scrollbar {
+            display: none; /* Safari and Chrome */
+        }
+
+        .nav-tabs .nav-item {
+            flex: 0 0 auto;
+        }
+
+        /* Override the active tab background color */
+        .schedule-tab .nav-tabs .nav-item .nav-link.active,
+        .schedule-table-tab .nav-tabs .nav-item .nav-link.active {
+            background-image: none;
+            background-color: #d3d3d3;
+            color: #171822; /* Set the text color to ensure it's readable */
+        }
+
+        .schedule-tab .nav-tabs .nav-item .nav-link.active h6,
+        .schedule-tab .nav-tabs .nav-item .nav-link.active p {
+            color: #171822; /* Ensure text color is set for readability */
+        }
+    </style>
+{% endblock %}

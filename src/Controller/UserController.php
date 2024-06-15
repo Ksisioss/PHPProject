@@ -102,7 +102,7 @@ class UserController extends AbstractController
         $users = $userRepository->findAll();
 
         // Rendre la vue avec la liste des utilisateurs
-        return $this->render('user/index.html.twig', [
+        return $this->render('user/home.html.twig', [
             'users' => $users,
         ]);
     }
