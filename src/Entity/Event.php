@@ -170,4 +170,9 @@ class Event
         }
         return $this;
     }
+
+    public function setId(int $id)
+    {
+        $this->id = $id;
+    }
 }
