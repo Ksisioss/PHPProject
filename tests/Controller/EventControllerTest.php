@@ -4,29 +4,19 @@ namespace App\Tests\Controller;
 
 use App\Entity\Event;
 use App\Entity\User;
-use App\Entity\Registration;
-use App\Repository\UserRepository;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 
 class EventControllerTest extends WebTestCase
 {
+    private $client;
+    private $user;
 
-    public function testIndex(): void
+    protected function setUp(): void
     {
-        $client = static::createClient();
-        $crawler = $client->request('GET', '/events');
+        parent::setUp();
 
-        $this->assertResponseIsSuccessful();
-        $this->assertSelectorTextContains('h2', 'UPCOMING GRAND PRIX');
-    }
-
-    public function testNewEvent(): void
-    {
-        $client = static::createClient();
-
-        $userRepository = $client->getContainer()->get('doctrine')->getRepository(User::class);
+        $this->client = static::createClient();
+        $userRepository = $this->client->getContainer()->get('doctrine')->getRepository(User::class);
         $existingUser = $userRepository->findOneBy(['email' => 'testuser@example.com']);
 
         if (!$existingUser) {
@@ -37,17 +27,29 @@ class EventControllerTest extends WebTestCase
             $user->setRoles(['ROLE_USER']);
             $user->setPassword('password1');
 
-            $entityManager = $client->getContainer()->get('doctrine')->getManager();
+            $entityManager = $this->client->getContainer()->get('doctrine')->getManager();
             $entityManager->persist($user);
             $entityManager->flush();
+
+            $this->user = $user; // Set the created user for reuse
         } else {
-            $user = $existingUser;
+            $this->user = $existingUser;
         }
 
-        $client->loginUser($user);
+        $this->client->loginUser($this->user);
+    }
 
+    public function testIndex(): void
+    {
+        $crawler = $this->client->request('GET', '/events');
 
-        $crawler = $client->request('GET', '/event/new');
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorTextContains('h2', 'UPCOMING GRAND PRIX');
+    }
+
+    public function testNewEvent(): void
+    {
+        $crawler = $this->client->request('GET', '/event/new');
         $this->assertResponseIsSuccessful();
 
         $form = $crawler->selectButton('AJOUTER')->form();
@@ -59,86 +61,37 @@ class EventControllerTest extends WebTestCase
         $form['event[maxUser]'] = 50;
         $form['event[public]'] = true;
 
-        $client->submit($form);
+        $this->client->submit($form);
         $this->assertResponseRedirects('/events');
     }
 
     public function testRegisterEvent(): void
     {
-        $client = static::createClient();
-        $userRepository = $client->getContainer()->get('doctrine')->getRepository(User::class);
-        $existingUser = $userRepository->findOneBy(['email' => 'testuser@example.com']);
+        $event = $this->createEventIfNeeded('Test Event');
 
-        if (!$existingUser) {
-            $user = new User();
-            $user->setEmail('testuser@example.com');
-            $user->setFirstName('John');
-            $user->setLastName('Doe');
-            $user->setRoles(['ROLE_USER']);
-            $user->setPassword('password1');
-
-            $entityManager = $client->getContainer()->get('doctrine')->getManager();
-            $entityManager->persist($user);
-            $entityManager->flush();
-        } else {
-            $user = $existingUser;
-        }
-
-        $client->loginUser($user);
-
-        $eventRepository = $client->getContainer()->get('doctrine')->getRepository(Event::class);
-        $existingEvent = $eventRepository->findOneBy(['title' => 'Test Event']);
-
-        if (!$existingEvent) {
-            $event = new Event();
-            $event->setTitle('Test Event');
-            $event->setDescription('This is a test event');
-            $event->setDate(new \DateTime('2024-06-30 10:00:00'));
-            $event->setLocation('Test Location');
-            $event->setCountry('Test Country');
-            $event->setMaxUser(50);
-            $event->setPublic(true);
-
-            $entityManager = $client->getContainer()->get('doctrine')->getManager();
-            $entityManager->persist($event);
-            $entityManager->flush();
-        } else {
-            $event = $existingEvent;
-        }
-        $client->request('GET', '/event/register/' . $event->getId());
-
+        $this->client->request('GET', '/event/register/' . $event->getId());
         $this->assertResponseRedirects('/events');
     }
 
     public function testUnregisterEvent(): void
     {
-        $client = static::createClient();
-        $userRepository = $client->getContainer()->get('doctrine')->getRepository(User::class);
-        $existingUser = $userRepository->findOneBy(['email' => 'testuser@example.com']);
+        $event = $this->createEventIfNeeded('Test Event');
 
-        if (!$existingUser) {
-            $user = new User();
-            $user->setEmail('testuser@example.com');
-            $user->setFirstName('John');
-            $user->setLastName('Doe');
-            $user->setRoles(['ROLE_USER']);
-            $user->setPassword('password1');
+        $this->client->request('GET', '/event/register/' . $event->getId());
+        $this->assertResponseRedirects('/events');
 
-            $entityManager = $client->getContainer()->get('doctrine')->getManager();
-            $entityManager->persist($user);
-            $entityManager->flush();
-        } else {
-            $user = $existingUser;
-        }
+        $this->client->request('GET', '/event/unregister/' . $event->getId());
+        $this->assertResponseRedirects('/events');
+    }
 
-        $client->loginUser($user);
-
-        $eventRepository = $client->getContainer()->get('doctrine')->getRepository(Event::class);
-        $existingEvent = $eventRepository->findOneBy(['title' => 'Test Event']);
+    private function createEventIfNeeded(string $title): Event
+    {
+        $eventRepository = $this->client->getContainer()->get('doctrine')->getRepository(Event::class);
+        $existingEvent = $eventRepository->findOneBy(['title' => $title]);
 
         if (!$existingEvent) {
             $event = new Event();
-            $event->setTitle('Test Event');
+            $event->setTitle($title);
             $event->setDescription('This is a test event');
             $event->setDate(new \DateTime('2024-06-30 10:00:00'));
             $event->setLocation('Test Location');
@@ -146,18 +99,13 @@ class EventControllerTest extends WebTestCase
             $event->setMaxUser(50);
             $event->setPublic(true);
 
-            $entityManager = $client->getContainer()->get('doctrine')->getManager();
+            $entityManager = $this->client->getContainer()->get('doctrine')->getManager();
             $entityManager->persist($event);
             $entityManager->flush();
-        } else {
-            $event = $existingEvent;
+
+            return $event;
         }
-        $client->request('GET', '/event/register/' . $event->getId());
 
-        $this->assertResponseRedirects('/events');
-
-        $client->request('GET', '/event/unregister/' . $event->getId());
-
-        $this->assertResponseRedirects('/events');
+        return $existingEvent;
     }
 }
