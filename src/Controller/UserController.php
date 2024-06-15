@@ -34,6 +34,12 @@ class UserController extends AbstractController
                     )
                 );
             }
+            $user->setPassword(
+                $userPasswordHasher->hashPassword(
+                    $user,
+                    $form->get('plainPassword')->getData()
+                )
+            );
 
             $entityManager->persist($user);
             $entityManager->flush();

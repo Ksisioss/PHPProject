@@ -3,10 +3,12 @@
 namespace App\Entity;
 
 use App\Repository\EventRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: EventRepository::class)]
+#[\Attribute] #[ORM\Entity(repositoryClass: EventRepository::class)]
 class Event
 {
     #[ORM\Id]
@@ -23,11 +25,23 @@ class Event
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $date = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
+    #[ORM\Column(length: 255)]
     private ?string $location = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
+    #[ORM\Column(length: 255)]
     private $country;
+    #[ORM\Column]
+    private ?int $maxUser = null;
+
+    #[ORM\Column]
+    private ?bool $public = null;
+
+    #[ORM\OneToMany(targetEntity: Registration::class, mappedBy: 'event', orphanRemoval: true)]
+    private ?Collection $registrations;
+
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: "events")]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?User $createdBy = null;
 
     public function getId(): ?int
     {
@@ -78,7 +92,17 @@ class Event
     public function setLocation(string $location): static
     {
         $this->location = $location;
+        return $this;
+    }
 
+    public function getMaxUser(): ?int
+    {
+        return $this->maxUser;
+    }
+
+    public function setMaxUser(?int $maxUser): static
+    {
+        $this->maxUser = $maxUser;
         return $this;
     }
 
@@ -87,10 +111,63 @@ class Event
         return $this->country;
     }
 
-    public function setCountry(string $country): self
+    public function setCountry(string $country): static
     {
         $this->country = $country;
+        return $this;
+    }
+    public function isPublic(): ?bool
+    {
+        return $this->public;
+    }
 
+    public function setPublic(bool $public): static
+    {
+        $this->public = $public;
+
+        return $this;
+    }
+
+    public function getCreatedBy(): ?User
+    {
+        return $this->createdBy;
+    }
+
+    public function setCreatedBy(?User $createdBy): self
+    {
+        $this->createdBy = $createdBy;
+
+        return $this;
+    }
+
+    public function __construct()
+    {
+        $this->registrations = new ArrayCollection();
+    }
+
+    public function getRegistrations(): Collection
+    {
+        return $this->registrations;
+    }
+
+    public function addRegistration(Registration $registration): self
+    {
+        if (!$this->registrations->contains($registration)) {
+            $this->registrations[] = $registration;
+            $registration->setEvent($this);
+        }
+
+        return $this;
+    }
+
+    public function removeRegistration(Registration $registration): self
+    {
+        if ($this->registrations->removeElement($registration)) {
+            // set the owning side to null (unless already changed)
+            if ($registration->getEvent() === $this) {
+                $registration->setEvent(null);
+            }
+        }
         return $this;
     }
 }

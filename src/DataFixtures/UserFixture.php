@@ -32,6 +32,9 @@ class UserFixture extends Fixture
         );
         $manager->persist($adminUser);
 
+        // Add reference to admin user
+        $this->addReference('admin-user', $adminUser);
+
         // Create a regular user
         $regularUser = new User();
         $regularUser->setFirstName('Regular');

@@ -47,6 +47,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: Registration::class, mappedBy: 'user', orphanRemoval: true)]
     private Collection $registrations;
 
+    #[ORM\OneToMany(targetEntity: Event::class, mappedBy: 'createdBy')]
+    private $events;
+
+
     public function __construct()
     {
         $this->registrations = new ArrayCollection();

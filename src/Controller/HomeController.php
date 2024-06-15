@@ -34,7 +34,6 @@ class HomeController extends AbstractController
                 'groupedEvents' => $groupedEvents,
                 'firstUpcomingEvent' => $firstUpcomingEvent,
                 'allEvents' => $events,
-                'registrations' => null,
             ]);
         }
 
