@@ -2,19 +2,73 @@
 
 {% extends 'base.html.twig' %}
 
-{% block title %}Edit Event{% endblock %}
-
 {% block body %}
-    <h1>Edit Event</h1>
+    <section class="min-h-screen flex items-center justify-center">
+        <div class="max-w-md w-full bg-white rounded-lg" style="width: 400px; margin: auto; margin-top: 50px; margin-bottom: 50px;">
+            <div class="p-6 space-y-6">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="section-title">
+                            <h2>EDIT EVENT</h2>
+                        </div>
+                    </div>
+                </div>
+                {% for error in form.vars.errors %}
+                    <div class="alert alert-danger">{{ error.message }}</div>
+                {% endfor %}
 
-    {{ form_start(form) }}
-    {{ form_row(form.title) }}
-    {{ form_row(form.description) }}
-    {{ form_row(form.date) }}
-    {{ form_row(form.maxUser) }}
-    {{ form_row(form.public) }}
-    {# You can add more fields as per your Event entity definition #}
+                {{ form_start(form) }}
 
-    <button type="submit" class="btn btn-primary">Save Changes</button>
-    {{ form_end(form) }}
+                <div class="form-group text-center" style="font-weight: bold; text-transform: uppercase;">
+                    {{ form_row(form.title, {'attr': {'class': 'form-control text-center'}}) }}
+                </div>
+
+                <div class="form-group text-center" style="font-weight: bold; text-transform: uppercase;">
+                    {{ form_row(form.description, {'attr': {'class': 'form-control text-center'}}) }}
+                </div>
+
+                <div class="form-group text-center" style="font-weight: bold; text-transform: uppercase;">
+                    {{ form_row(form.date, {'attr': {'class': 'form-control text-center'}}) }}
+                </div>
+                <div class="form-group text-center" style="font-weight: bold; text-transform: uppercase;">
+                    {{ form_row(form.location, {'attr': {'class': 'form-control text-center'}}) }}
+                </div>
+
+                <div class="form-group text-center" style="font-weight: bold; text-transform: uppercase;">
+                    {{ form_row(form.country, {'attr': {'class': 'form-control text-center'}}) }}
+                </div>
+
+                <div class="form-group text-center" style="font-weight: bold; text-transform: uppercase;">
+                    {{ form_row(form.maxUser, {'attr': {'class': 'form-control text-center'}}) }}
+                </div>
+
+                <div class="form-group text-center" style="font-weight: bold; text-transform: uppercase;">
+                    {{ form_row(form.public, {'attr': {'class': 'form-control text-center'}}) }}
+                </div>
+
+                <div class="text-center">
+                    <button type="submit" class="primary-btn w-full py-2.5" style="border: none;">SAVE CHANGES</button>
+                </div>
+
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </section>
+
+    <style>
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid transparent;
+            border-radius: 4px;
+        }
+
+        .alert-danger {
+            color: #a94442;
+            background-color: #f2dede;
+            border-color: #ebccd1;
+        }
+
+
+    </style>
 {% endblock %}

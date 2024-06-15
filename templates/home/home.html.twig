@@ -23,7 +23,7 @@
                         <h3>UPCOMING GRAND PRIX</h3>
                     </div>
                 </div>
-                <div class="col-lg-8">
+                <div class="col-lg-8 position-relative">
                     <div class="cd-timer" id="countdown">
                         <div class="cd-item">
                             <span id="days">0</span>
@@ -42,7 +42,7 @@
                             <p>Seconds</p>
                         </div>
                     </div>
-                    <div id="event-status" class="event-status"></div>
+                    <div id="event-status" class="event-status position-absolute" style="top: 50%; transform: translateY(-50%); right: 0; text-align: center; width: 100%;"></div>
                 </div>
             </div>
         </div>
@@ -50,32 +50,46 @@
     <!-- Counter Section End -->
 
     {% if is_granted('IS_AUTHENTICATED_FULLY') %}
-        <div class="example-wrapper align-items-center" style="margin: 20px 0;">
-            <h2 class="section-title" style="font-weight: bold">YOUR GRAND PRIX</h2>
-            {% if registrations is empty %}
-                <p class="section-title">You have not registered for any Grand Prix yet.</p>
-            {% else %}
-                <table>
-                    <thead>
-                    <tr>
-                        <th>Title</th>
-                        <th>Description</th>
-                        <th>Date</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% for registration in registrations %}
-                        <tr>
-                            <td>{{ registration.event.title }}</td>
-                            <td>{{ registration.event.description }}</td>
-                            <td>{{ registration.event.date|date('Y-m-d H:i') }}</td>
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
-            {% endif %}
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="schedule-tab">
+                    <div class="tab-content">
+                        <h2 class="section-title" style="font-weight: bold; text-align: center; margin-top: 20px">YOU ARE CURRENTLY REGISTERED FOR...</h2>
+                        {% if registrations is empty %}
+                            <p class="section-title" style="text-align: center;">You have not registered for any Grand Prix yet.</p>
+                        {% else %}
+                            {% for registration in registrations %}
+                                <div class="st-content">
+                                    <div class="container">
+                                        <div class="row">
+                                            <div class="col-lg-3">
+                                                <div class="sc-pic">
+                                                    <img src="{{ asset('img/schedule/schedule-1.jpg') }}" alt="">
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-5">
+                                                <div class="sc-text">
+                                                    <h4>{{ registration.event.title }}</h4>
+                                                    <h6>{{ registration.event.description }}</h6>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-4">
+                                                <ul class="sc-widget">
+                                                    <li><i class="fa fa-clock-o"></i> {{ registration.event.date|date('H:i') }} AM</li>
+                                                    <li><i class="fa fa-map-marker"></i> {{ registration.event.location }}, {{ registration.event.country }}</a></li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
         </div>
     {% else %}
+        <!-- Tabs for not authenticated users -->
         <div class="row">
             <div class="col-lg-12">
                 <div class="schedule-tab">
@@ -170,6 +184,9 @@
                 {% endfor %}
             ];
 
+            // Store events data in localStorage
+            localStorage.setItem('events', JSON.stringify(events));
+
             function updateCountdown() {
                 var now = new Date().getTime();
                 var nextEvent = events.find(event => event.date > now);
@@ -177,7 +194,7 @@
 
                 if (currentEvent) {
                     document.getElementById("countdown").style.display = 'none';
-                            document.getElementById("event-status").innerHTML = `<div class="col-lg-4"><div class="counter-text"><h3>${currentEvent.title} is currently happening</h3></div></div>`;
+                    document.getElementById("event-status").innerHTML = `<div class="counter-text text-right"><h3>${currentEvent.title} is currently happening...</h3></div>`;
                     return;
                 }
 
@@ -247,6 +264,16 @@
         function displayAllEvents() {
             document.querySelector('#tabs-all').classList.add('active');
         }
+
+        // Reload the page when navigating back to it
+        window.addEventListener('pageshow', function(event) {
+            if (event.persisted || (window.performance && window.performance.navigation.type === 2)) {
+                // Retrieve events data from localStorage
+                var events = JSON.parse(localStorage.getItem('events'));
+                updateCountdown();
+                setInterval(updateCountdown, 1000);
+            }
+        });
     </script>
 
     <style>
@@ -255,28 +282,31 @@
             overflow-x: auto;
             white-space: nowrap;
             -webkit-overflow-scrolling: touch;
-            scrollbar-width: none; /* Firefox */
+            scrollbar-width: none;
         }
 
         .nav-tabs::-webkit-scrollbar {
-            display: none; /* Safari and Chrome */
+            display: none;
         }
 
         .nav-tabs .nav-item {
             flex: 0 0 auto;
         }
 
-        /* Override the active tab background color */
         .schedule-tab .nav-tabs .nav-item .nav-link.active,
         .schedule-table-tab .nav-tabs .nav-item .nav-link.active {
             background-image: none;
             background-color: #d3d3d3;
-            color: #171822; /* Set the text color to ensure it's readable */
+            color: #171822;
         }
 
         .schedule-tab .nav-tabs .nav-item .nav-link.active h6,
         .schedule-tab .nav-tabs .nav-item .nav-link.active p {
-            color: #171822; /* Ensure text color is set for readability */
+            color: #171822;
+        }
+
+        .counter-section .event-status {
+            text-align: right;
         }
     </style>
 {% endblock %}
