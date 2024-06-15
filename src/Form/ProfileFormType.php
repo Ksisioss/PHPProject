@@ -39,6 +39,36 @@ class ProfileFormType extends AbstractType
                         'message' => 'Email should not be blank.',
                     ]),
                 ],
+            ])
+            ->add('plainPassword', RepeatedType::class, [
+                'type' => PasswordType::class,
+                'first_options' => [
+                    'attr' => ['autocomplete' => 'new-password'],
+                    'constraints' => [
+                        new NotBlank([
+                            'message' => 'Please enter a password',
+                        ]),
+                        new Length([
+                            'min' => 8,
+                            'minMessage' => 'Your password should be at least {{ limit }} characters',
+                            'max' => 4096,
+                        ]),
+                        new Regex([
+                            'pattern' => '/^(?=.*[a-zA-Z])(?=.*\d).+$/',
+                            'message' => 'Your password should include both letters and numbers.',
+                        ]),
+                    ],
+                ],
+                'second_options' => [
+                    'attr' => ['autocomplete' => 'new-password'],
+                    'constraints' => [
+                        new NotBlank([
+                            'message' => 'Please confirm your password',
+                        ]),
+                    ],
+                ],
+                'invalid_message' => 'The password fields must match.',
+                'mapped' => false,
             ]);
     }
 

@@ -2,6 +2,7 @@
 
 namespace App\DataFixtures;
 
+use App\Entity\User;
 use App\Entity\UserBLA;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
@@ -19,7 +20,7 @@ class UserFixture extends Fixture
     public function load(ObjectManager $manager): void
     {
         // Create an admin user
-        $adminUser = new UserBLA();
+        $adminUser = new User();
         $adminUser->setFirstName('Admin');
         $adminUser->setLastName('User');
         $adminUser->setEmail('admin@example.com');
@@ -33,7 +34,7 @@ class UserFixture extends Fixture
         $manager->persist($adminUser);
 
         // Create a regular user
-        $regularUser = new UserBLA();
+        $regularUser = new User();
         $regularUser->setFirstName('Regular');
         $regularUser->setLastName('User');
         $regularUser->setEmail('user@example.com');

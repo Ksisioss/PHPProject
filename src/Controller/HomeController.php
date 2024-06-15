@@ -19,7 +19,10 @@ class HomeController extends AbstractController
         $user = $this->getUser();
 
         if (!$user) {
-            return $this->redirectToRoute('app_login'); // Redirect to login if not authenticated
+            return $this->render('home/index.html.twig', [
+                'controller_name' => 'HomeController',
+                'registrations' => null,
+            ]);
         }
 
         $registrations = $entityManager->getRepository(Registration::class)->findBy(['user' => $user]);

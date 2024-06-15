@@ -1,9 +1,11 @@
+{# templates/event/edit.html.twig #}
+
 {% extends 'base.html.twig' %}
 
-{% block title %}Ajouter un évènement{% endblock %}
+{% block title %}Edit Event{% endblock %}
 
 {% block body %}
-    <h1>Ajouter un évènement</h1>
+    <h1>Edit Event</h1>
 
     {{ form_start(form) }}
     {{ form_row(form.title) }}
@@ -11,6 +13,8 @@
     {{ form_row(form.date) }}
     {{ form_row(form.maxUser) }}
     {{ form_row(form.public) }}
-    <button type="submit" class="btn btn-primary">Ajouter</button>
+    {# You can add more fields as per your Event entity definition #}
+
+    <button type="submit" class="btn btn-primary">Save Changes</button>
     {{ form_end(form) }}
 {% endblock %}
