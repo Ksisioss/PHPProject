@@ -27,7 +27,13 @@
                     {{ form_row(form.location, {'label_attr': {'style': 'text-transform: uppercase;'}, 'attr': {'class': 'form-control text-center'}}) }}
                 </div>
                 <div class="form-group text-center" style="font-weight: bold">
-                    {{ form_row(form.country, {'label_attr': {'style': 'text-transform: uppercase;'}, 'attr': {'class': 'form-control text-center'}}) }}
+                    {{ form_row(form.country, {'label_attr': {'style': 'text-transform: uppercase;'}, 'attr': {'class': 'form-control text-center', 'id': 'country-select'}}) }}
+                </div>
+                <div id="country-image-preview" class="text-center" style="margin-bottom: 15px;">
+                    <img src="" alt="Country Image" id="country-image" style="max-width: 100%; display: none;" />
+                </div>
+                <div class="form-group text-center" style="font-weight: bold; display: none;" id="local-image-input">
+                    {{ form_row(form.image, {'label': 'Upload Image', 'label_attr': {'style': 'text-transform: uppercase;'}, 'attr': {'class': 'form-control text-center'}}) }}
                 </div>
                 <div class="form-group text-center" style="font-weight: bold">
                     {{ form_row(form.maxUser, {'label_attr': {'style': 'text-transform: uppercase;'}, 'attr': {'class': 'form-control text-center'}}) }}
@@ -43,4 +49,44 @@
             </div>
         </div>
     </section>
+
+    <style>
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid transparent;
+            border-radius: 4px;
+        }
+
+        .alert-danger {
+            color: #a94442;
+            background-color: #f2dede;
+            border-color: #ebccd1;
+        }
+    </style>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const countrySelect = document.getElementById('country-select');
+            const countryImage = document.getElementById('country-image');
+            const countryImagePreview = document.getElementById('country-image-preview');
+            const localImageInput = document.getElementById('local-image-input');
+
+            function updateCountryImage() {
+                const selectedCountry = countrySelect.value.toLowerCase().replace(/\s/g, '-');
+                const imagePath = `/img/countries/${selectedCountry}.png`;
+
+                countryImage.src = imagePath;
+                countryImage.style.display = 'block';
+                localImageInput.style.display = 'none';
+                countryImage.onerror = function () {
+                    countryImage.style.display = 'none';
+                    localImageInput.style.display = 'block';
+                };
+            }
+
+            countrySelect.addEventListener('change', updateCountryImage);
+            updateCountryImage(); // Call this initially to set the image based on the default selected country
+        });
+    </script>
 {% endblock %}

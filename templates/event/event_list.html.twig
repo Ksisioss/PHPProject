@@ -51,7 +51,7 @@
                                         <div class="row">
                                             <div class="col-lg-3">
                                                 <div class="sc-pic">
-                                                    <img src="{{ asset('img/schedule/schedule-1.jpg') }}" alt="">
+                                                    <img src="{{ asset(event.image ?: 'img/schedule/default.jpg') }}" alt="{{ event.title }}">
                                                 </div>
                                             </div>
                                             <div class="col-lg-5">

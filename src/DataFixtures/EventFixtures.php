@@ -36,8 +36,8 @@ class EventFixtures extends Fixture implements DependentFixtureInterface
                 'createdBy' => $currentUser,
             ],
             [
-                'title' => 'British Grand Prix',
-                'description' => 'British Grand Prix',
+                'title' => 'United Kingdom Grand Prix',
+                'description' => 'United Kingdom Grand Prix',
                 'date' => new DateTime('2024-07-07 13:30:00'),
                 'location' => 'Silverstone',
                 'country' => 'United Kingdom',
@@ -177,6 +177,7 @@ class EventFixtures extends Fixture implements DependentFixtureInterface
             $event->setMaxUser($eventData['maxUser']);
             $event->setPublic($eventData['public']);
             $event->setCreatedBy($eventData['createdBy']);
+            $event->setImage('img/countries/' . strtolower(str_replace(' ', '-', $eventData['country'])) . '.png');
             $manager->persist($event);
         }
 

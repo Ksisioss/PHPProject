@@ -64,7 +64,7 @@
                                         <div class="row">
                                             <div class="col-lg-3">
                                                 <div class="sc-pic">
-                                                    <img src="{{ asset('img/schedule/schedule-1.jpg') }}" alt="">
+                                                    <img src="{{ asset(registration.event.image) }}" alt="{{ registration.event.title }}">
                                                 </div>
                                             </div>
                                             <div class="col-lg-5">
@@ -118,7 +118,7 @@
                                         <div class="row">
                                             <div class="col-lg-3">
                                                 <div class="sc-pic">
-                                                    <img src="{{ asset('img/schedule/schedule-1.jpg') }}" alt="">
+                                                    <img src="{{ asset(event.image) }}" alt="{{ event.title }}">
                                                 </div>
                                             </div>
                                             <div class="col-lg-5">
@@ -146,7 +146,7 @@
                                             <div class="row">
                                                 <div class="col-lg-3">
                                                     <div class="sc-pic">
-                                                        <img src="{{ asset('img/schedule/schedule-1.jpg') }}" alt="">
+                                                        <img src="{{ asset(event.image) }}" alt="{{ event.title }}">
                                                     </div>
                                                 </div>
                                                 <div class="col-lg-5">
@@ -184,9 +184,6 @@
                 {% endfor %}
             ];
 
-            // Store events data in localStorage
-            localStorage.setItem('events', JSON.stringify(events));
-
             function updateCountdown() {
                 var now = new Date().getTime();
                 var nextEvent = events.find(event => event.date > now);
@@ -194,7 +191,7 @@
 
                 if (currentEvent) {
                     document.getElementById("countdown").style.display = 'none';
-                    document.getElementById("event-status").innerHTML = `<div class="counter-text text-right"><h3>${currentEvent.title} is currently happening...</h3></div>`;
+                    document.getElementById("event-status").innerHTML = `<div class="col-lg-4"><div class="counter-text"><h3>${currentEvent.title} is currently happening</h3></div></div>`;
                     return;
                 }
 
@@ -261,10 +258,6 @@
             document.getElementById('tabs-' + tabId).classList.add('active');
         }
 
-        function displayAllEvents() {
-            document.querySelector('#tabs-all').classList.add('active');
-        }
-
         // Reload the page when navigating back to it
         window.addEventListener('pageshow', function(event) {
             if (event.persisted || (window.performance && window.performance.navigation.type === 2)) {
@@ -282,31 +275,28 @@
             overflow-x: auto;
             white-space: nowrap;
             -webkit-overflow-scrolling: touch;
-            scrollbar-width: none;
+            scrollbar-width: none; /* Firefox */
         }
 
         .nav-tabs::-webkit-scrollbar {
-            display: none;
+            display: none; /* Safari and Chrome */
         }
 
         .nav-tabs .nav-item {
             flex: 0 0 auto;
         }
 
+        /* Override the active tab background color */
         .schedule-tab .nav-tabs .nav-item .nav-link.active,
         .schedule-table-tab .nav-tabs .nav-item .nav-link.active {
             background-image: none;
             background-color: #d3d3d3;
-            color: #171822;
+            color: #171822; /* Set the text color to ensure it's readable */
         }
 
         .schedule-tab .nav-tabs .nav-item .nav-link.active h6,
         .schedule-tab .nav-tabs .nav-item .nav-link.active p {
-            color: #171822;
-        }
-
-        .counter-section .event-status {
-            text-align: right;
+            color: #171822; /* Ensure text color is set for readability */
         }
     </style>
 {% endblock %}

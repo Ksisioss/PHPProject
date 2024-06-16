@@ -8,6 +8,7 @@ parameters:
     mailjet_api_secret: '%env(MAILJET_API_SECRET)%'
     mailjet_sender: '%env(MAILJET_SENDER)%'
     mailjet_sender_name: '%env(MAILJET_SENDER_NAME)%'
+    event_images_directory: '%kernel.project_dir%/public/uploads/event_images'
 
 services:
     # default configuration for services in *this* file

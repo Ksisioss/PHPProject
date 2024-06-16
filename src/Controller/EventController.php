@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Controller;
 
 use App\Entity\Event;
@@ -13,20 +12,26 @@ use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Intl\Countries;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\String\Slugger\SluggerInterface;
 
 class EventController extends AbstractController
 {
-
     private EmailService $emailService;
+    private EntityManagerInterface $entityManager;
+    private Security $security;
 
-    public function __construct(EmailService $emailService)
+    public function __construct(EmailService $emailService, EntityManagerInterface $entityManager, Security $security)
     {
         $this->emailService = $emailService;
+        $this->entityManager = $entityManager;
+        $this->security = $security;
     }
 
     #[Route('/events', name: 'event_list')]
@@ -34,6 +39,7 @@ class EventController extends AbstractController
     {
         $nameFilter = $request->query->get('name');
         $dateFilter = $request->query->get('date');
+        $countryFilter = $request->query->get('country');
 
         $eventsQuery = $eventRepository->findAllOrderedByDate();
 
@@ -42,19 +48,8 @@ class EventController extends AbstractController
             $request->query->getInt('page', 1),
             10
         );
-
-        $user = $this->getUser();
 
         $user = $security->getUser();
-
-        $eventsQuery = $eventRepository->findAllOrderedByDate();
-
-        $events = $paginator->paginate(
-            $eventsQuery,
-            $request->query->getInt('page', 1),
-            10
-        );
-
         $registrations = $registrationRepository->findBy(['user' => $user]);
         $eventRegistrations = [];
         foreach ($registrations as $registration) {
@@ -79,27 +74,48 @@ class EventController extends AbstractController
             });
         }
 
-
+        if ($countryFilter) {
+            $events = array_filter($events, function ($event) use ($countryFilter) {
+                return $event->getCountry() === $countryFilter;
+            });
+        }
 
         return $this->render('event/event_list.html.twig', [
             'events' => $events,
             'nameFilter' => $nameFilter,
             'dateFilter' => $dateFilter,
+            'countryFilter' => $countryFilter,
             'eventRegistrations' => $eventRegistrations,
-            'isFull' => $isFull
+            'isFull' => $isFull,
         ]);
-    }
+        }
 
     #[Route('/event/new', name: 'event_new')]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    public function new(Request $request, EntityManagerInterface $entityManager, SluggerInterface $slugger): Response
     {
         $event = new Event();
         $form = $this->createForm(EventType::class, $event);
-
         $form->handleRequest($request);
-        $user = $this->getUser();
-        $event->setCreatedBy($user);
+
         if ($form->isSubmitted() && $form->isValid()) {
+            $countryCode = $form->get('country')->getData();
+            try {
+                $countryName = Countries::getName($countryCode);
+            } catch (\Exception $e) {
+                $countryName = $countryCode; // Fallback to country code if name is not found
+            }
+
+            $event->setCountry($countryName);
+
+            // Check if a default image exists for the country
+            $imagePath = 'img/countries/' . strtolower(str_replace(' ', '-', $countryName)) . '.png';
+            if (!file_exists($this->getParameter('kernel.project_dir') . '/public/' . $imagePath)) {
+                $imagePath = 'img/schedule/default.jpg'; // Set default image if country image is not found
+            }
+
+            $event->setImage($imagePath);
+            $event->setCreatedBy($this->getUser());
+
             $entityManager->persist($event);
             $entityManager->flush();
 
@@ -179,20 +195,43 @@ class EventController extends AbstractController
     #[IsGranted('EVENT_EDIT', 'event')]
     public function edit(Event $event, Request $request, EntityManagerInterface $entityManager): Response
     {
-        $form = $this->createForm(EventType::class, $event);
+        $form = $this->createForm(EventType::class, $event, [
+            'show_image_field' => true,
+        ]);
 
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $imageFile = $form->get('image')->getData();
+            if ($imageFile) {
+                $originalFilename = pathinfo($imageFile->getClientOriginalName(), PATHINFO_FILENAME);
+                $safeFilename = $slugger->slug($originalFilename);
+                $newFilename = $safeFilename.'-'.uniqid().'.'.$imageFile->guessExtension();
+
+                try {
+                    $imageFile->move(
+                        $this->getParameter('event_images_directory'),
+                        $newFilename
+                    );
+                } catch (FileException $e) {
+                    // Handle exception if something happens during file upload
+                }
+
+                $event->setImage($newFilename);
+            }
+
             $entityManager->flush();
             $this->addFlash('success', 'Event updated successfully.');
 
             return $this->redirectToRoute('event_list');
         }
 
+        $flags = array_diff(scandir($this->getParameter('kernel.project_dir') . '/public/img/countries'), ['.', '..']);
+
         return $this->render('event/edit.html.twig', [
-            'form' => $form->createView(),
             'event' => $event,
+            'form' => $form->createView(),
+            'flags' => $flags,
         ]);
     }
 
