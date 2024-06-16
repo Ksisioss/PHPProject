@@ -191,22 +191,34 @@ class EventController extends AbstractController
         return $this->redirectToRoute('event_list');
     }
 
+    // src/Controller/EventController.php
+
+    // src/Controller/EventController.php
+
     #[Route('/event/edit/{id}', name: 'event_edit')]
     #[IsGranted('EVENT_EDIT', 'event')]
-    public function edit(Event $event, Request $request, EntityManagerInterface $entityManager): Response
+    public function edit(Event $event, Request $request, EntityManagerInterface $entityManager, SluggerInterface $slugger): Response
     {
-        $form = $this->createForm(EventType::class, $event, [
-            'show_image_field' => true,
-        ]);
+        $form = $this->createForm(EventType::class, $event);
 
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $countryCode = $form->get('country')->getData();
+            try {
+                $countryName = Countries::getName($countryCode);
+            } catch (\Exception $e) {
+                $countryName = $countryCode; // Fallback to country code if name is not found
+            }
+
+            $event->setCountry($countryName);
+
+            // Handle image upload only if a file is provided
             $imageFile = $form->get('image')->getData();
             if ($imageFile) {
                 $originalFilename = pathinfo($imageFile->getClientOriginalName(), PATHINFO_FILENAME);
                 $safeFilename = $slugger->slug($originalFilename);
-                $newFilename = $safeFilename.'-'.uniqid().'.'.$imageFile->guessExtension();
+                $newFilename = $safeFilename . '-' . uniqid() . '.' . $imageFile->guessExtension();
 
                 try {
                     $imageFile->move(
@@ -218,6 +230,13 @@ class EventController extends AbstractController
                 }
 
                 $event->setImage($newFilename);
+            } else {
+                // Update image path based on country
+                $imagePath = 'img/countries/' . strtolower(str_replace(' ', '-', $countryName)) . '.png';
+                if (!file_exists($this->getParameter('kernel.project_dir') . '/public/' . $imagePath)) {
+                    $imagePath = 'img/schedule/default.jpg'; // Set default image if country image is not found
+                }
+                $event->setImage($imagePath);
             }
 
             $entityManager->flush();
@@ -226,14 +245,16 @@ class EventController extends AbstractController
             return $this->redirectToRoute('event_list');
         }
 
-        $flags = array_diff(scandir($this->getParameter('kernel.project_dir') . '/public/img/countries'), ['.', '..']);
+        $countries = Countries::getNames();
 
         return $this->render('event/edit.html.twig', [
             'event' => $event,
             'form' => $form->createView(),
-            'flags' => $flags,
+            'countries' => $countries,
         ]);
     }
+
+
 
 }
 
